@@ -34,13 +34,6 @@
             border-radius: 5px;
             width: 90%;
         }
-        .payment-options {
-            display: none;
-        }
-        .payment-options .button {
-            width: 30%;
-            display: inline-block;
-        }
         .hidden {
             display: none;
         }
@@ -71,21 +64,6 @@
             font-size: 14px;
             font-weight: bold;
         }
-        .customer-care {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 10px;
-            background-color: lightgray;
-        }
-        .customer-care img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin-top: 10px;
-        }
-        .customer-care p {
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
@@ -95,7 +73,6 @@
         <div class="header">SUPER MARKET</div>
         <img src="13.png" alt="Cart Connection" style="width: 100%; margin-top: 10px;">
         <button class="button" onclick="connectBluetooth()">Connect</button>
-        <button class="button" onclick="showCustomerCare()">Customer Care</button>
     </div>
 
     <!-- Second Screen -->
@@ -116,53 +93,39 @@
 
         <div class="total">TOTAL: <span id="totalPrice">0</span></div>
 
-        <button class="button" onclick="showPayments()">Proceed to pay</button>
-
-        <div class="payment-options" id="paymentOptions">
-            <p>Select a payment method:</p>
-            <button class="button" onclick="alert('Redirecting to Google Pay')">Google Pay</button>
-            <button class="button" onclick="alert('Redirecting to PhonePe')">PhonePe</button>
-            <button class="button" onclick="alert('Redirecting to Paytm')">Paytm</button>
-        </div>
-
         <button class="button" onclick="disconnect()">Disconnect</button>
-        <button class="button" onclick="showCustomerCare()">Customer Care</button>
-    </div>
-
-    <!-- Customer Care Screen -->
-    <div class="phone hidden" id="customerCare">
-        <div class="header">Customer Care</div>
-        <img src="1.png" alt="Customer Support" height="60" width="100">
-        <p>📞 Contact: +91 98765 43210</p>
-        <p>📧 Email: support@supermarket.com</p>
-        <button class="button" onclick="hideCustomerCare()">Back</button>
     </div>
 
     <script>
         async function connectBluetooth() {
             try {
+                if (!navigator.bluetooth) {
+                    alert("Web Bluetooth is not supported in your browser. Use Chrome or Edge.");
+                    return;
+                }
+
                 const device = await navigator.bluetooth.requestDevice({
-                    acceptAllDevices: true,
+                    acceptAllDevices: true, // Allow all nearby devices
                     optionalServices: ['battery_service']
                 });
 
                 console.log("Connected to:", device.name);
+                alert("Connected to " + device.name);
+
                 document.getElementById("screen1").classList.add("hidden");
                 document.getElementById("screen2").classList.remove("hidden");
 
                 updateDateTime();
                 setInterval(updateDateTime, 1000);
 
-                // Simulating Data Fetching from Bluetooth Sensor
                 fetchShoppingData();
             } catch (error) {
                 console.error("Bluetooth Connection Error:", error);
-                alert("Failed to connect to Bluetooth device.");
+                alert("Failed to connect. Ensure Bluetooth is on and retry.");
             }
         }
 
         function fetchShoppingData() {
-            // Simulated Data from Bluetooth Sensor
             const shoppingData = [
                 { id: 1, name: "Biscuit", quantity: 7, price: 20 },
                 { id: 2, name: "Chocolate", quantity: 4, price: 50 }
@@ -183,26 +146,9 @@
             document.getElementById("totalPrice").innerText = total;
         }
 
-        function showPayments() {
-            document.getElementById("paymentOptions").style.display = "block";
-        }
-
         function updateDateTime() {
             const now = new Date();
-            const date = now.toLocaleDateString();
-            const time = now.toLocaleTimeString();
-            document.getElementById("dateTime").innerText = `${date} - ${time}`;
-        }
-
-        function showCustomerCare() {
-            document.getElementById("screen1").classList.add("hidden");
-            document.getElementById("screen2").classList.add("hidden");
-            document.getElementById("customerCare").classList.remove("hidden");
-        }
-
-        function hideCustomerCare() {
-            document.getElementById("customerCare").classList.add("hidden");
-            document.getElementById("screen1").classList.remove("hidden");
+            document.getElementById("dateTime").innerText = now.toLocaleString();
         }
 
         function disconnect() {
