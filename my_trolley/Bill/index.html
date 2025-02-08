@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Market</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: black;
+        }
+        .phone {
+            width: 300px;
+            background-color: white;
+            margin: 20px auto;
+            border-radius: 10px;
+            padding: 10px;
+            border: 2px solid black;
+        }
+        .header {
+            background-color: yellow;
+            font-weight: bold;
+            padding: 10px;
+            font-size: 20px;
+        }
+        .button {
+            background-color: gray;
+            color: white;
+            padding: 10px;
+            margin: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 90%;
+        }
+        .payment-options {
+            display: none;
+        }
+        .payment-options .button {
+            width: 30%;
+            display: inline-block;
+        }
+        .hidden {
+            display: none;
+        }
+        .summary {
+            background-color: gray;
+            color: white;
+            font-weight: bold;
+            padding: 5px;
+        }
+        table {
+            width: 100%;
+            margin-top: 10px;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 5px;
+            text-align: center;
+        }
+        .total {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .date-time {
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .customer-care {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: lightgray;
+        }
+        .customer-care img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-top: 10px;
+        }
+        .customer-care p {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- First Screen -->
+    <div class="phone" id="screen1">
+        <div class="header">SUPER MARKET</div>
+        <img src="13.png" alt="Cart Connection" style="width: 100%; margin-top: 10px;">
+        <button class="button" onclick="connectBluetooth()">Connect</button>
+        <button class="button" onclick="showCustomerCare()">Customer Care</button>
+    </div>
+
+    <!-- Second Screen -->
+    <div class="phone hidden" id="screen2">
+        <div class="header">SUPER MARKET</div>
+        <div class="date-time" id="dateTime"></div>
+
+        <div class="summary">SHOPPING SUMMARY</div>
+        
+        <table id="shoppingTable">
+            <tr>
+                <th>S.No</th>
+                <th>ITEMS</th>
+                <th>QUANTITY</th>
+                <th>PRICE</th>
+            </tr>
+        </table>
+
+        <div class="total">TOTAL: <span id="totalPrice">0</span></div>
+
+        <button class="button" onclick="showPayments()">Proceed to pay</button>
+
+        <div class="payment-options" id="paymentOptions">
+            <p>Select a payment method:</p>
+            <button class="button" onclick="alert('Redirecting to Google Pay')">Google Pay</button>
+            <button class="button" onclick="alert('Redirecting to PhonePe')">PhonePe</button>
+            <button class="button" onclick="alert('Redirecting to Paytm')">Paytm</button>
+        </div>
+
+        <button class="button" onclick="disconnect()">Disconnect</button>
+        <button class="button" onclick="showCustomerCare()">Customer Care</button>
+    </div>
+
+    <!-- Customer Care Screen -->
+    <div class="phone hidden" id="customerCare">
+        <div class="header">Customer Care</div>
+        <img src="1.png" alt="Customer Support" height="60" width="100">
+        <p>📞 Contact: +91 98765 43210</p>
+        <p>📧 Email: support@supermarket.com</p>
+        <button class="button" onclick="hideCustomerCare()">Back</button>
+    </div>
+
+    <script>
+        async function connectBluetooth() {
+            try {
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: ['battery_service']
+                });
+
+                console.log("Connected to:", device.name);
+                document.getElementById("screen1").classList.add("hidden");
+                document.getElementById("screen2").classList.remove("hidden");
+
+                updateDateTime();
+                setInterval(updateDateTime, 1000);
+
+                // Simulating Data Fetching from Bluetooth Sensor
+                fetchShoppingData();
+            } catch (error) {
+                console.error("Bluetooth Connection Error:", error);
+                alert("Failed to connect to Bluetooth device.");
+            }
+        }
+
+        function fetchShoppingData() {
+            // Simulated Data from Bluetooth Sensor
+            const shoppingData = [
+                { id: 1, name: "Biscuit", quantity: 7, price: 20 },
+                { id: 2, name: "Chocolate", quantity: 4, price: 50 }
+            ];
+
+            const table = document.getElementById("shoppingTable");
+            let total = 0;
+
+            shoppingData.forEach((item, index) => {
+                let row = table.insertRow();
+                row.insertCell(0).innerText = index + 1;
+                row.insertCell(1).innerText = item.name;
+                row.insertCell(2).innerText = item.quantity;
+                row.insertCell(3).innerText = item.price;
+                total += item.price;
+            });
+
+            document.getElementById("totalPrice").innerText = total;
+        }
+
+        function showPayments() {
+            document.getElementById("paymentOptions").style.display = "block";
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const date = now.toLocaleDateString();
+            const time = now.toLocaleTimeString();
+            document.getElementById("dateTime").innerText = `${date} - ${time}`;
+        }
+
+        function showCustomerCare() {
+            document.getElementById("screen1").classList.add("hidden");
+            document.getElementById("screen2").classList.add("hidden");
+            document.getElementById("customerCare").classList.remove("hidden");
+        }
+
+        function hideCustomerCare() {
+            document.getElementById("customerCare").classList.add("hidden");
+            document.getElementById("screen1").classList.remove("hidden");
+        }
+
+        function disconnect() {
+            alert("Disconnected from Bluetooth.");
+            document.getElementById("screen2").classList.add("hidden");
+            document.getElementById("screen1").classList.remove("hidden");
+        }
+    </script>
+
+</body>
+</html>
